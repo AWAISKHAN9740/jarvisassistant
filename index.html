@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050a10">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>J.A.R.V.I.S.</title>
+<style>
+:root{--bg:#050a10;--pn:#0c1722;--ln:#1b3346;--ac:#5ee7ff;--tx:#dff4fa;--mu:#7fa0b0;--al:#ff6b4a;--ok:#6dffb0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+header{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--ln)}
+h1{font-size:18px;letter-spacing:.18em;margin:0;font-weight:600}
+#st{margin-left:auto;font-size:13px;color:var(--ac);border:1px solid var(--ln);padding:4px 10px;border-radius:99px}
+#reactor{width:64px;height:64px;flex:none;position:relative}
+#reactor i{position:absolute;inset:0;border-radius:50%;border:2px solid var(--ac);opacity:.9}
+#reactor i:nth-child(2){inset:10px;border-style:dashed;animation:sp 12s linear infinite}
+#reactor i:nth-child(3){inset:22px;background:var(--ac);border:0;box-shadow:0 0 18px var(--ac)}
+@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes pu{50%{transform:scale(1.25);opacity:.5}}
+body[data-s=listening] #reactor i:nth-child(3){animation:pu 1s infinite;background:var(--ok);box-shadow:0 0 18px var(--ok)}
+body[data-s=thinking] #reactor i:nth-child(2){animation-duration:1.5s}
+body[data-s=speaking] #reactor i:nth-child(3){animation:pu .45s infinite}
+body[data-s=executing] #reactor i:nth-child(1){border-color:#ffd24a}
+body[data-s=error] #reactor i{border-color:var(--al)}body[data-s=error] #reactor i:nth-child(3){background:var(--al);box-shadow:0 0 18px var(--al)}
+@media(prefers-reduced-motion:reduce){#reactor i,#reactor i:nth-child(3){animation:none!important}}
+#main{flex:1;overflow-y:auto}#log{padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-height:120px}
+.m{max-width:88%;padding:10px 13px;border-radius:14px;border:1px solid var(--ln);background:var(--pn);white-space:pre-wrap;word-wrap:break-word}
+.m.u{align-self:flex-end;border-color:#2a5a73}
+.m.j{align-self:flex-start}
+.m small{display:block;color:var(--mu);font-size:11px;margin-bottom:2px}
+.row{display:flex;gap:8px;padding:8px 14px}
+.chips{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
+button,select,input,textarea{font:inherit;color:var(--tx)}
+button{min-height:48px;padding:0 16px;background:var(--pn);border:1px solid var(--ln);border-radius:12px;white-space:nowrap}
+button:active{background:#12293a}
+button.p{border-color:var(--ac);color:var(--ac)}
+button.d{border-color:var(--al);color:var(--al)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.chips button{min-height:44px;font-size:14px}
+input,select,textarea{min-height:48px;width:100%;background:var(--pn);border:1px solid var(--ln);border-radius:12px;padding:0 12px}
+#mic{width:56px;padding:0;font-size:22px}
+#mic.on{background:var(--ok);color:#021;border-color:var(--ok)}
+.cf{align-self:flex-start;display:flex;gap:8px}
+#sheet{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;z-index:5;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#sheet.o{display:flex}
+#tabs{display:flex;gap:6px;padding:8px 14px;border-bottom:1px solid var(--ln);overflow-x:auto}
+#tabs button.a{border-color:var(--ac);color:var(--ac)}
+#pane{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.card{border:1px solid var(--ln);background:var(--pn);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.card h3{margin:0;font-size:15px}
+.mu{color:var(--mu);font-size:13px;margin:0}
+.pr{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pr b{flex:1;min-width:120px}
+.g{color:var(--ok)}.n{color:var(--al)}
+video{width:100%;border-radius:12px;background:#000;max-height:40vh}
+label{font-size:13px;color:var(--mu)}
+
+#dash{padding:8px 14px 0}
+#wave{display:flex;gap:3px;align-items:center;justify-content:center;height:34px}
+#wave i{width:4px;height:5px;background:var(--ac);border-radius:2px;opacity:.5}
+@keyframes wv{to{height:26px;opacity:1}}
+body[data-s=listening] #wave i,body[data-s=speaking] #wave i,body[data-s=thinking] #wave i{animation:wv .5s infinite alternate}
+.live{display:flex;gap:10px;align-items:center;border:1px solid var(--al);border-radius:14px;padding:10px;background:#1b0e0e;margin:8px 0}
+.live div{flex:1}.live p{margin:2px 0 0}
+#tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}
+#tiles button{height:78px;padding:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;white-space:normal}
+#tiles span{font-size:20px}#tiles small{color:var(--mu);font-size:10px}
+#sugg{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}#sugg button{min-height:44px;font-size:14px}
+@media(prefers-reduced-motion:reduce){#wave i{animation:none!important}}
+.row{min-width:0}.row button{min-width:0;padding:0 10px;white-space:normal;line-height:1.2}
+#pane,#sheet{min-height:0}#pane>*{min-width:0;max-width:100%}
+#send,#mic{flex:none}
+
+body[data-s=waiting] #reactor i{border-color:#ffd24a}body[data-s=waiting] #reactor i:nth-child(3){background:#ffd24a;box-shadow:0 0 18px #ffd24a;animation:pu 1.6s infinite}
+#st{transition:color .2s,border-color .2s}
+body[data-s=listening] #st{color:var(--ok);border-color:var(--ok)}body[data-s=thinking] #st{color:#9db8ff}body[data-s=executing] #st,body[data-s=waiting] #st{color:#ffd24a;border-color:#ffd24a}body[data-s=error] #st{color:var(--al);border-color:var(--al)}
+.m{animation:fi .18s ease-out}@keyframes fi{from{opacity:0;transform:translateY(6px)}}
+button{transition:background .12s,border-color .12s,transform .08s}button:active{transform:scale(.97)}
+.ic{width:24px;height:24px;stroke:var(--ac);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.cf{display:flex;gap:8px;margin:4px 0}.cf button{flex:1}
+.rs{font-weight:700;font-size:11px;padding:3px 8px;border-radius:99px;border:1px solid var(--ln);color:var(--mu)}
+.rs.PASS{color:var(--ok);border-color:var(--ok)}.rs.FAIL{color:var(--al);border-color:var(--al)}.rs.PERM{color:#ffd24a;border-color:#ffd24a}
+#pane .pr button{white-space:normal;padding:0 6px;min-width:0;font-size:13px}
+@media(max-width:340px){#pane .pr button{font-size:12px;padding:0 3px}}
+body.lite *,body.lite *::before{animation:none!important;transition:none!important}
+</style></head>
+<body data-s="idle">
+<header><div id="reactor"><i></i><i></i><i></i></div><h1>J.A.R.V.I.S.</h1><span id="st">IDLE</span></header>
+<main id="main"><div id="dash">
+<div id="wave" aria-hidden="true"></div>
+<div class="live"><div><b>LIVE BAAT · COMM-LINK</b><p class="mu">Hands-free: JARVIS listens again after each reply. Works only while this page is open.</p></div><button id="lvb" class="d">START CALL</button></div>
+<div id="tiles"></div>
+<p class="mu" style="margin:6px 2px">Urdu &amp; Hindi commands (tap to ask)</p>
+<div id="sugg"></div>
+<div class="pr"><label for="lg">Language</label><select id="lg"></select></div>
+</div><div id="log" aria-live="polite"></div></main>
+<div class="row"><input id="tx" placeholder="Type a command…" autocomplete="off" enterkeyhint="send"><button id="mic" class="p" aria-label="Tap to talk">🎤</button><button id="send" class="p">Send</button></div>
+<div class="row"><button id="live" style="flex:1">Live Baat: start</button><button id="stopv">Stop voice</button><button id="menu" style="flex:1">Tools & Security</button></div>
+
+<div id="sheet"><div id="tabs"></div><div id="pane"></div><div class="row"><button id="close" style="flex:1" class="p">Close</button></div></div>
+
+
+<script>"use strict";
+const $=s=>document.querySelector(s);
+const S={lang:'hg',rate:1,vol:1,sfx:true,provider:'OpenAI-compatible',endpoint:'',model:'',key:'',prompt:'You are J.A.R.V.I.S., a calm, concise personal assistant and coding helper. Reply in the user\'s language.'};
+try{Object.assign(S,JSON.parse(localStorage.getItem('jv.s')||'{}'))}catch(e){}
+const save=()=>{try{const c=Object.assign({},S);delete c.key;localStorage.setItem('jv.s',JSON.stringify(c))}catch(e){}};try{const o=JSON.parse(localStorage.getItem('jv.s')||'{}');if(o.key){delete o.key;localStorage.setItem('jv.s',JSON.stringify(o))}}catch(e){}
+let notes=[];try{notes=JSON.parse(localStorage.getItem('jv.n')||'[]')}catch(e){}
+const saveN=()=>{try{localStorage.setItem('jv.n',JSON.stringify(notes))}catch(e){}};
+const ctx={last:null,pending:null,await:null};
+const R={
+ok:{en:'Sure.',hi:'जी Janab।',ur:'جی Janab۔',hg:'Ji Janab.'},
+hello:{en:'JARVIS online. Say or type a command. Say "help" for the list.',hi:'JARVIS तैयार है। कमांड बोलिए या लिखिए। "help" बोलें।',ur:'JARVIS تیار ہے۔ حکم بولیں یا لکھیں۔',hg:'JARVIS ready hai. Command bolein ya likhein. "help" bolein.'},
+bat:{en:'Battery is {p} percent{c}.',hi:'Janab, battery {p} percent है{c}।',ur:'Janab، بیٹری {p} فیصد ہے{c}۔',hg:'Janab, battery {p} percent hai{c}.'},
+nobat:{en:'This browser does not expose battery data. The native Android version can read it.',hi:'यह browser battery data नहीं देता। Native Android version में यह संभव है।',ur:'یہ براؤزر بیٹری ڈیٹا نہیں دیتا۔ نیٹو اینڈرائیڈ ورژن میں ممکن ہے۔',hg:'Ye browser battery data nahi deta. Native Android version mein ye possible hai.'},
+tOn:{en:'Torch is on.',hi:'टॉर्च चालू है।',ur:'ٹارچ آن ہے۔',hg:'Torch on hai.'},
+tOff:{en:'Torch is off.',hi:'टॉर्च बंद है।',ur:'ٹارچ بند ہے۔',hg:'Torch off hai.'},
+tFail:{en:'This browser or phone did not allow torch control. A native Android build is needed for reliable torch.',hi:'इस browser में torch control नहीं मिला। भरोसेमंद torch के लिए native Android चाहिए।',ur:'اس براؤزر میں ٹارچ کنٹرول نہیں ملا۔ نیٹو اینڈرائیڈ درکار ہے۔',hg:'Is browser mein torch control nahi mila. Reliable torch ke liye native Android chahiye.'},
+cam:{en:'Opening the camera.',hi:'Camera खोल रहा हूँ।',ur:'کیمرہ کھول رہا ہوں۔',hg:'Camera khol raha hoon.'},
+camAsk:{en:'Janab, camera access is needed. Shall I request permission? (yes / no)',hi:'Janab, camera access चाहिए। क्या मैं permission माँगूँ? (हाँ / नहीं)',ur:'Janab، کیمرہ ایکسیس چاہیے۔ کیا میں اجازت مانگوں؟ (ہاں / نہیں)',hg:'Janab, camera access chahiye. Kya main permission maangoon? (haan / nahi)'},
+tq:{en:'How many minutes?',hi:'कितने मिनट का?',ur:'کتنے منٹ کا؟',hg:'Kitne minute ka?'},
+tset:{en:'Timer set for {n} minute(s).',hi:'{n} minute का timer लगा दिया।',ur:'{n} منٹ کا ٹائمر لگا دیا۔',hg:'{n} minute ka timer laga diya.'},
+tdone:{en:'Janab, your timer is finished.',hi:'Janab, आपका timer पूरा हो गया।',ur:'Janab، آپ کا ٹائمر مکمل ہو گیا۔',hg:'Janab, aapka timer poora ho gaya.'},
+tcan:{en:'Timer cancelled.',hi:'Timer बंद कर दिया।',ur:'ٹائمر بند کر دیا۔',hg:'Timer band kar diya.'},
+tnone:{en:'No timer is running.',hi:'कोई timer नहीं चल रहा।',ur:'کوئی ٹائمر نہیں چل رہا۔',hg:'Koi timer nahi chal raha.'},
+alarm:{en:'Setting a real alarm needs the native Android app. I can run a timer here instead.',hi:'असली alarm के लिए native Android app चाहिए। यहाँ timer लगा सकता हूँ।',ur:'اصل الارم کے لیے نیٹو اینڈرائیڈ ایپ چاہیے۔ یہاں ٹائمر لگا سکتا ہوں۔',hg:'Asli alarm ke liye native Android app chahiye. Yahan timer laga sakta hoon.'},
+nsave:{en:'Note saved.',hi:'Note सेव हो गया।',ur:'نوٹ محفوظ ہو گیا۔',hg:'Note save ho gaya.'},
+nask:{en:'What should the note say?',hi:'Note में क्या लिखूँ?',ur:'نوٹ میں کیا لکھوں؟',hg:'Note mein kya likhoon?'},
+nlist:{en:'Your notes:',hi:'आपके notes:',ur:'آپ کے نوٹس:',hg:'Aapke notes:'},
+nnone:{en:'You have no notes.',hi:'कोई note नहीं है।',ur:'کوئی نوٹ نہیں ہے۔',hg:'Koi note nahi hai.'},
+ndel:{en:'Last note deleted.',hi:'आखिरी note हटा दिया।',ur:'آخری نوٹ حذف کر دیا۔',hg:'Aakhri note delete kar diya.'},
+dial:{en:'Janab, shall I open the dialer? It will not place any call. (yes / no)',hi:'Janab, क्या dialer खोलूँ? कोई call अपने आप नहीं होगी। (हाँ / नहीं)',ur:'Janab، کیا ڈائلر کھولوں؟ کوئی کال خود نہیں ہوگی۔ (ہاں / نہیں)',hg:'Janab, kya dialer kholoon? Koi call apne aap nahi hogi. (haan / nahi)'},
+brow:{en:'Opening the browser.',hi:'Browser खोल रहा हूँ।',ur:'براؤزر کھول رہا ہوں۔',hg:'Browser khol raha hoon.'},
+scr:{en:'Screen Vision requires the native Android version and your permission. Full device screen access requires the native Android version and your permission. This web version cannot see your screen.',hi:'पूरी device screen देखने के लिए native Android version और आपकी permission चाहिए। यह web version आपकी screen नहीं देख सकता।',ur:'پوری ڈیوائس اسکرین کے لیے نیٹو اینڈرائیڈ ورژن اور آپ کی اجازت چاہیے۔ یہ ویب ورژن آپ کی اسکرین نہیں دیکھ سکتا۔',hg:'Poori device screen dekhne ke liye native Android version aur aapki permission chahiye. Ye web version aapki screen nahi dekh sakta.'},
+back:{en:'Android back/home actions need the native Accessibility service. Not available in the browser.',hi:'Back/home के लिए native Accessibility service चाहिए। Browser में नहीं है।',ur:'بیک/ہوم کے لیے نیٹو ایکسیسبیلٹی سروس چاہیے۔ براؤزر میں نہیں ہے۔',hg:'Back/home ke liye native Accessibility service chahiye. Browser mein nahi hai.'},
+yes:{en:'Done.',hi:'हो गया।',ur:'ہو گیا۔',hg:'Ho gaya.'},
+no:{en:'Cancelled.',hi:'रद्द कर दिया।',ur:'منسوخ کر دیا۔',hg:'Cancel kar diya.'},
+stop:{en:'Stopped.',hi:'रोक दिया।',ur:'روک دیا۔',hg:'Rok diya.'},
+live1:{en:'Live conversation started. I will keep listening after each reply.',hi:'Live बातचीत शुरू। हर जवाब के बाद मैं सुनता रहूँगा।',ur:'لائیو بات چیت شروع۔ ہر جواب کے بعد میں سنتا رہوں گا۔',hg:'Live baat shuru. Har jawab ke baad main sunta rahunga.'},
+live0:{en:'Live conversation ended.',hi:'Live बातचीत खत्म।',ur:'لائیو بات چیت ختم۔',hg:'Live baat khatam.'},
+nomic:{en:'Speech recognition is not supported in this browser. Use Chrome on Android, or type.',hi:'इस browser में speech recognition नहीं है। Android Chrome इस्तेमाल करें या लिखें।',ur:'اس براؤزر میں اسپیچ ریکگنیشن نہیں ہے۔ اینڈرائیڈ کروم استعمال کریں یا لکھیں۔',hg:'Is browser mein speech recognition nahi hai. Android Chrome use karein ya likhein.'},
+micden:{en:'Microphone permission is disabled. Allow it from Tools & Security.',hi:'Microphone permission बंद है। इसे Security से allow करें।',ur:'مائیک کی اجازت بند ہے۔ سیکیورٹی سے اجازت دیں۔',hg:'Microphone permission disabled hai. Security se allow karein.'},
+offl:{en:'Janab, the AI service is not configured or unavailable. Basic commands still work. Say "help".',hi:'Janab, AI service configure नहीं है या उपलब्ध नहीं। Basic commands चल रहे हैं। "help" बोलें।',ur:'Janab، AI سروس سیٹ نہیں یا دستیاب نہیں۔ بنیادی کمانڈز چل رہی ہیں۔ "help" بولیں۔',hg:'Janab, AI service configure nahi hai ya unavailable hai. Basic commands chal rahi hain. "help" bolein.'},
+quota:{en:'The AI service returned an error (limit or key problem). Basic commands still work.',hi:'AI service में error आया (limit या key की दिक्कत)। Basic commands चल सकती हैं।',ur:'AI سروس میں خرابی آئی (حد یا کی کا مسئلہ)۔ بنیادی کمانڈز چل سکتی ہیں۔',hg:'AI service mein error aaya (limit ya key ki dikkat). Basic commands chal sakti hain.'},
+help:{en:'Try: battery · torch on/off · open camera · 5 minute timer · note likho … · show notes · dialer · browser · screen · live conversation · stop.',hi:'बोलिए: battery · torch on/off · camera खोलो · 5 minute timer · note लिखो … · notes दिखाओ · dialer · browser · screen · live · stop।',ur:'بولیں: battery · torch on/off · camera · 5 minute timer · note لکھو … · notes · dialer · browser · screen · live · stop۔',hg:'Bolein: battery · torch on/off · camera kholo · 5 minute timer · note likho … · notes dikhao · dialer · browser · screen · live · stop.'},
+vis:{en:'Camera analysis needs an AI vision service, which is not connected here. I can show the preview and capture a photo.',hi:'Camera analysis के लिए AI vision service चाहिए, जो यहाँ जुड़ी नहीं है। Preview और photo capture हो सकता है।',ur:'کیمرہ تجزیے کے لیے AI vision سروس چاہیے جو یہاں جڑی نہیں۔ پریویو اور فوٹو لے سکتا ہوں۔',hg:'Camera analysis ke liye AI vision service chahiye, jo yahan connected nahi hai. Preview aur photo capture ho sakta hai.'}
+};
+const LC={en:'en-US',hi:'hi-IN',ur:'ur-PK',hg:'en-IN'};
+let cl=()=>S.lang;
+const T=(k,p={})=>{let s=(R[k]||{})[cl()]||R[k].en;for(const a in p)s=s.replace('{'+a+'}',p[a]);return s};
+// UI state
+const setS=s=>{if(s==='idle'&&ctx.pending)s='waiting';document.body.dataset.s=s;$('#st').textContent=s.toUpperCase();};
+const log=(who,txt)=>{const d=document.createElement('div');d.className='m '+(who==='u'?'u':'j');d.innerHTML='<small>'+(who==='u'?'YOU':'JARVIS')+'</small>';d.append(document.createTextNode(txt));$('#log').append(d);$('#main').scrollTop=1e9;return d};
+// sound
+let ac;const beep=(f,d=.08)=>{if(!S.sfx)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.05;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}};
+// TTS
+let live=false,rec=null,listening=false,speaking=false;
+function say(txt,after){log('j',txt);if(!('speechSynthesis'in window)){after&&after();return}
+ speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(txt);u.lang=LC[cl()];u.rate=S.rate;u.volume=S.vol;
+ u.onstart=()=>{speaking=true;setS('speaking')};
+ u.onend=u.onerror=()=>{speaking=false;setS('idle');after&&after();if(live)listen()};
+ try{speechSynthesis.speak(u)}catch(e){speaking=false;setS('error');after&&after();if(live)listen()}}
+// STT
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function listen(){if(!SR){say(T('nomic'));live=false;upLive();return}
+ if(listening||speaking)return;rec=new SR();rec.lang=LC[cl()];rec.interimResults=false;
+ rec.onstart=()=>{listening=true;$('#mic').classList.add('on');setS('listening');beep(660)};
+ rec.onresult=e=>{const t=e.results[0][0].transcript;handle(t)};
+ rec.onerror=e=>{listening=false;$('#mic').classList.remove('on');if(e.error==='not-allowed'||e.error==='service-not-allowed'){live=false;upLive();setS('error');say(T('micden'))}else if(live&&e.error==='no-speech'){setS('idle');setTimeout(listen,400)}else if(live&&e.error!=='aborted'){live=false;upLive();setS('error');say(T('lerr',{e:e.error}))}else setS('idle')};
+ rec.onend=()=>{listening=false;$('#mic').classList.remove('on');if(document.body.dataset.s==='listening')setS('idle');};
+ try{rec.start()}catch(e){}}
+function upLive(){$('#live').textContent=live?'Live Baat: end':'Live Baat: start';const b=$('#lvb');if(b)b.textContent=live?'END CALL':'START CALL'}
+// timer
+let tm=null,tEnd=0,tInt=null;
+let tPaused=null;
+function tick(){const l=tEnd-Date.now();const el=$('#tleft');if(el)el.textContent=fmt(l);if(l<=0){clearInterval(tInt);tm=null;tPaused=null;beep(880,.4);setS('executing');say(T('tdone'));try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}}}
+function timerStart(n){clearInterval(tInt);tPaused=null;tEnd=Date.now()+n*60000;tm=n;tInt=setInterval(tick,500)}
+function timerPause(){if(!tm||tPaused!==null)return;tPaused=tEnd-Date.now();clearInterval(tInt)}
+function timerResume(){if(tPaused===null)return;tEnd=Date.now()+tPaused;tPaused=null;tInt=setInterval(tick,500)}
+const fmt=ms=>{ms=Math.max(0,Math.round(ms/1000));return String(Math.floor(ms/60)).padStart(2,'0')+':'+String(ms%60).padStart(2,'0')};
+// torch + camera
+let tstream=null;
+async function torch(on){try{if(!on){tstream&&tstream.getTracks().forEach(t=>t.stop());tstream=null;return true}
+ const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});const tr=s.getVideoTracks()[0];
+ const c=tr.getCapabilities?tr.getCapabilities():{};if(!c.torch){s.getTracks().forEach(t=>t.stop());return false}
+ await tr.applyConstraints({advanced:[{torch:true}]});tstream=s;return true}catch(e){return false}}
+async function bat(){if(!navigator.getBattery)return say(T('nobat'));const b=await navigator.getBattery();const c=b.charging?({en:' and charging',hi:', charging',ur:'، چارجنگ',hg:', charging'})[cl()]:'';say(T('bat',{p:Math.round(b.level*100),c}))}
+// intents
+const has=(t,r)=>r.test(t);
+const num=t=>{const m=t.match(/[\d۰-۹०-९]+/);if(!m)return null;return parseInt(m[0].replace(/[۰-۹]/g,d=>d.charCodeAt(0)-1776).replace(/[०-९]/g,d=>d.charCodeAt(0)-2406))};
+function detect(t){if(/[\u0900-\u097F]/.test(t)){if(S.lang!=='hi'&&S.lang!=='hg')S.lang='hi'}else if(/[\u0600-\u06FF]/.test(t))S.lang='ur'}
+async function handle(raw){const text=raw.trim();if(!text)return;log('u',text);detect(text);setS('thinking');
+ const t=text.toLowerCase().replace(/^(hey |ok |okay )?(jarvis|जार्विस|جارویس)[,\s]*/i,'');
+ // confirmations
+ if(ctx.pending){const y=/^(haan|han|haa|हाँ|हां|हा|yes|yeah|ji|जी|kar do|कर दो|ہاں|جی|کر دو)/.test(t),n=/^(nahi|nahin|nai|no|rehne do|rahne do|रहने दो|नहीं|नही|نہیں|نہ)/.test(t);
+  if(y||n)document.querySelectorAll('.cf').forEach(e=>e.remove());if(y){const a=ctx.pending;ctx.pending=null;return a()}if(n){ctx.pending=null;return say(T('no'))}}
+ if(ctx.await==='timer'){const n=num(t);if(n){ctx.await=null;return setTimer(n)}}
+ if(ctx.await==='note'){ctx.await=null;return addNote(text)}
+ if(has(t,/\b(help)\b|मदद|मदद|مدد/))return say(T('help'));
+ if(has(t,/live (baat|conversation|talk)|लाइव|live बात|لائیو/)){live=!live;upLive();say(T(live?'live1':'live0'));return}
+ if(has(t,/screen|स्क्रीन|اسکرین/)&&has(t,/dekh|देख|look|see|read|on it|क्या|kya|دیکھ|what/))return say(T('scr'));
+ if(has(t,/battery|बैटरी|بیٹری|charge/)){ctx.last='battery';return bat()}
+ const onW=/\b(on|chalu|chala|jala)\b|चालू|चला|जला|روشن|چلا/,offW=/\boff\b|band|बंद|बन्द|بند/;
+ if(ctx.last==='torch'&&/^(ise|isse|isko|इसे|इसको|usse|usko|उसे|اسے)/.test(t)&&(onW.test(t)||offW.test(t)))return torchCmd(offW.test(t));
+ if(has(t,/torch|flashlight|flash light|टॉर्च|फ्लैशलाइट|ٹارچ|فلیش|रोशनी|روشنی/)){if(!onW.test(t)&&!offW.test(t)){ctx.last='torch';return say(tstream?T('tOn'):T('tOff'))}return torchCmd(offW.test(t))}
+ if(has(t,/camera|कैमरा|کیمرہ|कैमेरा/))return askCam();
+ if(has(t,/security|permission|सुरक्षा|परमिशन|پرمیشن/)){openSheet('Security');return say(T('ok'))}
+ if(await labVoice(t,text))return;
+ if(has(t,/coding lab|code lab|कोडिंग|کوڈنگ/)){openSheet('Lab');return say(T('ok'))}
+ if(has(t,/alarm|अलार्म|الارم/))return say(T('alarm'));
+ if(has(t,/timer|टाइमर|ٹائمر/)){if(has(t,/pause|resume|continue|jari|जारी|आगे/)){if(has(t,/resume|continue|jari|जारी|आगे/))timerResume();else timerPause();return say(T('ok'))}if(has(t,/cancel|stop|band|बंद|हटा|روک|بند/)){return cancelTimer()}const n=num(t);if(n)return setTimer(n);ctx.await='timer';return say(T('tq'))}
+ if(ctx.last==='timer'&&has(t,/^(usko|उसको|isko|इसको|उसे|use|اسے|اس کو)/)&&has(t,/band|बंद|cancel|stop|रोक|بند/))return cancelTimer();
+ if(has(t,/(note|नोट|نوٹ).*(likho|likh|लिखो|लिख|write|add|لکھو|لکھ|bana|बना)|^(write|add) (a )?note/)){const body=text.replace(/^.*?(likho|likh|लिखो|लिख|write|add|لکھو|لکھ)\s*/i,'').replace(/^(a )?note\s*/i,'').trim();if(body&&!/^(note|नोट|نوٹ)$/i.test(body))return addNote(body);ctx.await='note';return say(T('nask'))}
+ if(await notesVoice(t))return;
+ if(has(t,/delete|हटा|मिटा|ڈیلیٹ|حذف/)&&has(t,/note|नोट|نوٹ/)){notes.pop();saveN();return say(T('ndel'))}
+ if(has(t,/note|नोट|نوٹ/)){if(!notes.length)return say(T('nnone'));return say(T('nlist')+'\n'+notes.map((n,i)=>(i+1)+'. '+n.t).join('\n'))}
+ if(has(t,/dial|डायलर|ڈائلر/)){const go=()=>{say(T('yes'));location.href='tel:'};ctx.pending=go;say(T('dial'));showConfirm(go);return}
+ if(has(t,/browser|ब्राउज़र|ब्राउजर|براؤزر/)){const go=()=>{say(T('brow'));setTimeout(()=>window.open('https://www.google.com','_blank'),700)};ctx.pending=go;say(T('brAsk'));showConfirm(go);return}
+ if(has(t,/settings|सेटिंग|سیٹنگ/)){openSheet('Settings');return say(T('ok'))}
+ if(has(t,/\b(back|home)\b|वापस|होम|واپس|ہوم/))return say(T('back'));
+ if(has(t,/^(stop|cancel|ruko|रुको|बस|رک|بس)/)){speechSynthesis.cancel();live=false;upLive();return say(T('stop'))}
+ return askAI(text)}
+function setTimer(n){ctx.last='timer';timerStart(n);say(T('tset',{n}))}
+function cancelTimer(){if(!tm)return say(T('tnone'));clearInterval(tInt);tm=null;tPaused=null;say(T('tcan'))}
+function addNote(x){notes.push({t:x,d:Date.now()});saveN();say(T('nsave'))}
+function askCam(){const go=()=>{say(T('cam'));openSheet('Camera')};
+ ctx.pending=go;say(T('camAsk'));showConfirm(go)}
+function showConfirm(fn){const d=document.createElement('div');d.className='cf';const a=document.createElement('button');a.className='p';a.textContent='AUTHORIZE (HAAN)';const b=document.createElement('button');b.className='d';b.textContent='DENY (NAHI)';
+ a.onclick=()=>{d.remove();ctx.pending=null;fn()};b.onclick=()=>{d.remove();ctx.pending=null;say(T('no'))};d.append(a,b);$('#log').append(d);$('#main').scrollTop=1e9}
+// AI
+const hist=[];
+async function askAI(text){if(!S.endpoint||(!S.model&&S.endpoint!=='/api/chat')){setS('error');return say(T('offl'))}
+ hist.push({role:'user',content:text});
+ try{const r=await fetch(S.endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(S.key?{Authorization:'Bearer '+S.key}:{})},body:JSON.stringify({model:S.model,messages:[{role:'system',content:S.prompt+' Language: '+S.lang},...hist.slice(-12)]})});
+  if(!r.ok){setS('error');return say(T('quota'))}
+  const j=await r.json();const a=j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content||'';
+  if(!a){setS('error');return say(T('quota'))}hist.push({role:'assistant',content:a});say(a)}
+ catch(e){setS('error');say(T('offl'))}}
+// sheet
+const TABS=['Tools','Notes','Lab','Camera','Security','Settings','Install','Test'];let cur='Tools';
+function openSheet(n){cur=n;$('#sheet').classList.add('o');draw()}
+function draw(){const tb=$('#tabs');tb.innerHTML='';TABS.forEach(n=>{const b=document.createElement('button');b.textContent=n;if(n===cur)b.className='a';b.onclick=()=>{cur=n;draw()};tb.append(b)});
+ stopCam();const p=$('#pane');p.innerHTML='';({Tools:dTools,Notes:dNotes,Lab:dLab,Camera:dCam,Security:dSec,Settings:dSet,Install:dInst,Test:dTest})[cur](p)}
+const card=(p,h,sub)=>{const c=document.createElement('div');c.className='card';c.innerHTML='<h3>'+h+'</h3>'+(sub?'<p class="mu">'+sub+'</p>':'');p.append(c);return c};
+const btn=(c,t,f,k='')=>{const b=document.createElement('button');b.textContent=t;b.className=k;b.onclick=f;c.append(b);return b};
+function dTools(p){
+ let c=card(p,'Timer','Runs while this page stays open.');const l=document.createElement('p');l.id='tleft';l.style.cssText='font-size:32px;margin:0';l.textContent=tm?fmt(tEnd-Date.now()):'00:00';c.append(l);
+ const r=document.createElement('div');r.className='pr';[1,5,10].forEach(n=>btn(r,n+' min',()=>{setTimer(n)}));const ci=document.createElement('input');ci.type='number';ci.min=1;ci.placeholder='Custom min';ci.inputMode='numeric';r.append(ci);btn(r,'Start',()=>{const n=parseInt(ci.value);if(n>0)setTimer(n)},'p');btn(r,'Pause',timerPause);btn(r,'Resume',timerResume);btn(r,'Cancel',cancelTimer,'d');c.append(r);
+ c=card(p,'Torch','Works only if this browser exposes torch control.');const tr=document.createElement('div');tr.className='pr';btn(tr,'ON',()=>handle('torch on'),'p');btn(tr,'OFF',()=>handle('torch off'));c.append(tr);
+ c=card(p,'Battery');btn(c,'Check battery',bat,'p');
+ c=card(p,'Notes ('+notes.length+')');const nl=document.createElement('div');notes.forEach((n,i)=>{const d=document.createElement('div');d.className='pr';const b=document.createElement('b');b.style.fontWeight=400;b.textContent=n.t;d.append(b);btn(d,'Delete',()=>{notes.splice(i,1);saveN();draw()},'d');nl.append(d)});c.append(nl);
+ const ni=document.createElement('input');ni.placeholder='New note';c.append(ni);btn(c,'Save note',()=>{if(ni.value.trim()){notes.push({t:ni.value.trim(),d:Date.now()});saveN();draw()}},'p');
+ c=card(p,'Dialer','Opens the phone dialer. It never places a call by itself.');btn(c,'Open dialer',()=>handle('dialer'),'p');
+ c=card(p,'Screen Vision','Status: OFF. Screen Vision requires the native Android version and your permission. This web version cannot capture your device screen. Full device screen access requires the native Android version and your permission.')}
+let cstream=null;
+function stopCam(){cstream&&cstream.getTracks().forEach(t=>t.stop());cstream=null}
+function dCam(p){const c=card(p,'Camera Vision','Preview and capture. Analysis needs an AI vision service, which is not connected.');const v=document.createElement('video');v.playsInline=true;v.muted=true;c.append(v);const cv=document.createElement('canvas');cv.style.cssText='width:100%;display:none;border-radius:12px';c.append(cv);
+ const r=document.createElement('div');r.className='pr';c.append(r);
+ const st=btn(r,'Start preview',async()=>{try{cstream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});v.srcObject=cstream;v.style.display='';cv.style.display='none';await v.play()}catch(e){setS('error');const m=document.createElement('p');m.className='mu n';m.textContent=T('micden').replace(/Microphone|Microphone permission|माइक|مائیک/,'Camera');m.textContent='Camera permission was denied or no camera was found. Allow it in Security.';c.append(m)}},'p');
+ btn(r,'Capture',()=>{if(!v.videoWidth)return;cv.width=v.videoWidth;cv.height=v.videoHeight;cv.getContext('2d').drawImage(v,0,0);cv.style.display='block';v.style.display='none'});
+ btn(r,'Analyze',()=>say(T('vis')));btn(r,'Retake',()=>{cv.style.display='none';v.style.display='';});btn(r,'Close',()=>{$('#sheet').classList.remove('o');stopCam()},'d')}
+async function perm(n){try{const r=await navigator.permissions.query({name:n});return r.state}catch(e){return 'unknown'}}
+async function dSec(p){
+ const rows=[['Microphone','microphone','Needed to hear your voice commands.',async()=>{const s=await navigator.mediaDevices.getUserMedia({audio:true});s.getTracks().forEach(t=>t.stop())}],
+ ['Camera','camera','Needed for the camera preview and torch.',async()=>{const s=await navigator.mediaDevices.getUserMedia({video:true});s.getTracks().forEach(t=>t.stop())}],
+ ['Notifications','notifications','Lets timers notify you.',()=>Notification.requestPermission()]];
+ for(const [n,k,why,req] of rows){const st=await perm(k);const c=card(p,n,why);const r=document.createElement('div');r.className='pr';const b=document.createElement('b');b.className=st==='granted'?'g':'n';b.textContent=st==='granted'?'Granted':st==='denied'?'Not granted (blocked)':'Not granted';r.append(b);
+  btn(r,'ALLOW',async()=>{try{await req()}catch(e){}draw()},'p');btn(r,'RETRY',draw);btn(r,'OPEN SETTINGS',()=>permHelp(c,n));c.append(r);
+  if(st==='denied'){const m=document.createElement('p');m.className='mu';m.textContent='Blocked. Tap the lock icon next to the address in Chrome, open Permissions, then allow '+n+'.';c.append(m)}}
+ for(const [n,why] of [['Screen Capture','MediaProjection screen vision. Native Android only.'],['Accessibility','Reads UI and performs back, scroll and click. Native Android only; you enable it in Android Settings.'],['Overlay (floating orb)','Native Android only; needs the official overlay permission.']]){const c=card(p,n,why);const b=document.createElement('b');b.className='n';b.textContent='Not available in this web version';c.append(b)}
+ const c=card(p,'Privacy','Live Baat: '+(live?'ACTIVE':'OFF')+'. Microphone: '+(listening?'ACTIVE':'idle')+'. Camera: '+((cstream||tstream)?'ACTIVE':'idle')+'. Screen Vision: OFF (native only). Accessibility: not available in web. No hidden recording; notes and settings stay on this device.');}
+function dSet(p){let c=card(p,'Language');const s=document.createElement('select');[['en','English'],['ur','اردو'],['hi','हिन्दी'],['hg','Hinglish']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;if(S.lang===v)o.selected=true;s.append(o)});s.onchange=()=>{S.lang=s.value;save()};c.append(s);
+ c=card(p,'Voice');const rg=(l,k,mn,mx,st)=>{const lb=document.createElement('label');lb.textContent=l;const i=document.createElement('input');i.type='range';i.min=mn;i.max=mx;i.step=st;i.value=S[k];i.oninput=()=>{S[k]=parseFloat(i.value);save()};c.append(lb,i)};rg('Speech speed','rate',.6,1.6,.1);rg('Voice volume','vol',0,1,.1);
+ const sx=document.createElement('label');const cb=document.createElement('input');cb.type='checkbox';cb.checked=S.sfx;cb.style.cssText='width:24px;min-height:24px;margin-right:8px;vertical-align:middle';cb.onchange=()=>{S.sfx=cb.checked;save()};sx.append(cb,'Sound effects');c.append(sx);
+ c=card(p,'AI brain','Any OpenAI-compatible chat endpoint. The key is stored only in this browser on this phone, so use a limited key. For shared use, run a server that holds the key.');
+ [['Provider','provider'],['Endpoint URL','endpoint'],['Model','model'],['API key','key'],['System prompt','prompt']].forEach(([l,k])=>{const lb=document.createElement('label');lb.textContent=l;const i=document.createElement('input');i.value=S[k]||'';if(k==='key')i.type='password';i.onchange=()=>{S[k]=i.value.trim();save()};c.append(lb,i)})}
+// wire
+$('#send').onclick=()=>{const v=$('#tx').value;$('#tx').value='';handle(v)};
+$('#tx').onkeydown=e=>{if(e.key==='Enter')$('#send').click()};
+$('#mic').onclick=()=>{if(listening){rec&&rec.stop();return}speechSynthesis.cancel();listen()};
+$('#live').onclick=()=>{live=!live;upLive();if(live){say(T('live1'))}else{rec&&listening&&rec.stop();speechSynthesis.cancel();say(T('live0'))}};
+$('#stopv').onclick=()=>{live=false;upLive();speechSynthesis.cancel();rec&&listening&&rec.stop();setS('idle')};
+$('#menu').onclick=()=>openSheet('Tools');
+$('#close').onclick=()=>{stopCam();$('#sheet').classList.remove('o')};
+log('j',T('hello'));
+</script>
+<script>"use strict";
+// Bridge contract for the future Kotlin/WebView layer. Not wired into features yet.
+// The native app injects window.JarvisNative; the web code can then call it through NativeBridge.
+const NativeBridge={available:typeof window.JarvisNative!=='undefined',
+ has(m){return this.available&&typeof window.JarvisNative[m]==='function'},
+ call(m,...a){if(!this.has(m))throw new Error('Native feature not available: '+m);return window.JarvisNative[m](window.__JT||'',...a)}};
+// Planned methods: setTorch(on), getBattery(), startScreenVision(), stopScreenVision(), readScreenText(),
+// openAccessibilitySettings(), a11yClick(label), a11yBack(), showOrb(), hideOrb(), startWakeService()
+</script>
+<script>"use strict";
+// Dashboard: state-driven waveform, tiles, suggestions, language, install hooks.
+async function torchCmd(off){ctx.last='torch';setS('executing');const ok=await torch(!off);if(!ok&&!off){setS('error');return say(T('tFail'))}return say(T(off?'tOff':'tOn'))}
+window.JV_INSTALL=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();window.JV_INSTALL=e});
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+(function(){
+ const w=$('#wave');for(let i=0;i<22;i++){const e=document.createElement('i');e.style.animationDelay=(i%7)*70+'ms';w.append(e)}
+ const TL=[['🖥️','Screen','vision',()=>handle('screen dekho')],['🛡️','Security','permit',()=>openSheet('Security')],['🔦','Torch','lumen',()=>handle(tstream?'torch off':'torch on')],['⏱️','Timers','alarm',()=>openSheet('Tools')],
+ ['📝','Notes','memo',()=>openSheet('Notes')],['📷','Camera','eye',()=>handle('camera')],['🔋','Battery','…',()=>handle('battery')],['📞','Dialer','call',()=>handle('dialer')],
+ ['💻','Code Lab','code',()=>openSheet('Lab')],['⚙️','Settings','config',()=>openSheet('Settings')],['⬇️','Install','get app',()=>openSheet('Install')],['🌐','Browser','web',()=>handle('browser')]];
+ TL.forEach(([ic,n,sub,f])=>{const b=document.createElement('button');const s=document.createElement('span');s.textContent=ic;const l=document.createElement('b');l.textContent=n;l.style.fontWeight=500;const m=document.createElement('small');m.textContent=sub;if(n==='Battery')m.id='bsub';b.append(s,l,m);b.onclick=f;$('#tiles').append(b)});
+ if(navigator.getBattery)navigator.getBattery().then(b=>{const s=$('#bsub'),f=()=>{s.textContent=Math.round(b.level*100)+'%'+(b.charging?' ⚡':'')};f();b.onlevelchange=b.onchargingchange=f}).catch(()=>{});
+ [['🖥️ Screen dekho','screen dekho'],['🛡️ Security permissions','security kholo'],['🔋 Battery batao','battery batao'],['⏱️ 5 minute timer','5 minute timer'],['🔦 Torch roshan karo','torch chalu karo'],['📝 Note likho','note likho'],['📷 Camera kholo','camera kholo'],['💻 Coding Lab kholo','coding lab kholo']].forEach(([l,c])=>{const b=document.createElement('button');b.textContent=l;b.onclick=()=>handle(c);$('#sugg').append(b)});
+ const lg=$('#lg');[['en','English'],['ur','اردو'],['hi','हिन्दी'],['hg','Hinglish']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;if(S.lang===v)o.selected=true;lg.append(o)});lg.onchange=()=>{S.lang=lg.value;save()};
+ $('#lvb').onclick=()=>$('#live').click();
+})();
+</script>
+<script>"use strict";
+// Coding Lab: explorer, highlighted editor, sandboxed run, error panel, versions, AI with proposed changes.
+const LK='jv.lab',VK='jv.ver';
+const TPL={html:'<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>New page</title>\n</head>\n<body>\n\n</body>\n</html>\n',css:'/* styles */\n',json:'{}\n',js:'',ts:'',py:'',kt:'',java:''};
+let LB={cur:'index.html',files:{'index.html':'<!doctype html>\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<h1>Hello from JARVIS Lab</h1>\n<button onclick="this.textContent=\'Clicked\'">Tap me</button>\n','app.js':'console.log("JARVIS Lab ready");\n'}};
+try{const x=JSON.parse(localStorage.getItem(LK));if(x&&x.files&&x.cur&&x.files[x.cur]!==undefined)LB=x}catch(e){}
+let VS=[];try{VS=JSON.parse(localStorage.getItem(VK)||'[]')}catch(e){}
+const lbSave=()=>{try{localStorage.setItem(LK,JSON.stringify(LB))}catch(e){}};
+const vsSave=()=>{try{localStorage.setItem(VK,JSON.stringify(VS))}catch(e){}};
+function snap(label){VS.push({t:Date.now(),label,files:JSON.parse(JSON.stringify(LB.files))});VS=VS.slice(-20);vsSave()}
+const EXT=n=>(n.split('.').pop()||'').toLowerCase();
+let labTab='Files',ERRS=[],ACT={},LMSG='';
+// ---- syntax highlighting (no libraries) ----
+(function(){const s=document.createElement('style');s.textContent='.hc{color:#6b8794}.ht{color:#ff9e64}.hs{color:#9ece6a}.ha{color:#7dcfff}.hk{color:#bb9af7}.hn{color:#e0af68}';document.head.append(s)})();
+const JSK='async await break case catch class const continue default delete do else export extends finally for from function if import in instanceof let new of return static super switch this throw try typeof var void while yield true false null undefined';
+const KW={js:JSK,ts:JSK+' interface type enum implements private public protected readonly as number string boolean any',
+ py:'and as assert async await break class continue def del elif else except finally for from global if import in is lambda None nonlocal not or pass raise return try while with yield True False self',
+ java:'abstract boolean break byte case catch char class continue default do double else enum extends final finally float for if implements import instanceof int interface long new package private protected public return short static super switch this throw throws try void volatile while true false null String',
+ kt:'val var fun class object interface when if else for while do return break continue in is as null true false override open data sealed private public protected internal import package companion init this super try catch finally throw suspend lateinit by'};
+const QS='"(?:\\\\.|[^"\\\\\\n])*"|\'(?:\\\\.|[^\'\\\\\\n])*\'';
+function specs(x){const kw=k=>'\\b(?:'+KW[k].split(' ').join('|')+')\\b',num='\\b\\d+(?:\\.\\d+)?\\b';
+ if(x==='html'||x==='htm')return [['<!--[\\s\\S]*?-->','c'],['<\\/?[a-zA-Z][\\w:-]*','t'],[QS,'s'],['\\s[\\w:-]+(?==)','a']];
+ if(x==='css')return [['\\/\\*[\\s\\S]*?\\*\\/','c'],[QS,'s'],['@[\\w-]+','k'],['[\\w-]+(?=\\s*:)','a'],['#[0-9a-fA-F]{3,8}\\b|\\b\\d+(?:\\.\\d+)?(?:px|em|rem|%|vh|vw|s|ms)?','n']];
+ if(x==='json')return [['"(?:\\\\.|[^"\\\\\\n])*"(?=\\s*:)','a'],['"(?:\\\\.|[^"\\\\\\n])*"','s'],['-?\\b\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?\\b','n'],['\\b(?:true|false|null)\\b','k']];
+ if(x==='py')return [['#.*|"""[\\s\\S]*?"""|\'\'\'[\\s\\S]*?\'\'\'','c'],[QS,'s'],[num,'n'],[kw('py'),'k']];
+ const k={js:'js',mjs:'js',ts:'ts',java:'java',kt:'kt',kts:'kt'}[x];if(!k)return null;
+ return [['\\/\\/.*|\\/\\*[\\s\\S]*?\\*\\/','c'],[QS+'|`[\\s\\S]*?`','s'],[num,'n'],[kw(k),'k']]}
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const RC={};
+function hl(code,x){if(code.length>30000)return esc(code);const sp=specs(x);if(!sp)return esc(code);
+ const re=RC[x]||(RC[x]=new RegExp(sp.map(s=>'('+s[0]+')').join('|'),'g'));re.lastIndex=0;
+ let o='',last=0,m;while((m=re.exec(code))){if(!m[0]){re.lastIndex++;continue}o+=esc(code.slice(last,m.index));let i=1;while(m[i]===undefined)i++;o+='<span class="h'+sp[i-1][1]+'">'+esc(m[0])+'</span>';last=re.lastIndex}
+ return o+esc(code.slice(last))}
+// ---- helpers ----
+function dl(a,b){const A=a.split('\n'),B=b.split('\n'),m=new Map();A.forEach(x=>m.set(x,(m.get(x)||0)+1));const add=[];B.forEach(x=>{const c=m.get(x);if(c)m.set(x,c-1);else add.push(x)});let del=0;m.forEach(v=>del+=v);return {add:add.length,del,sample:add.filter(x=>x.trim()).slice(0,8).map(x=>'+ '+x)}}
+function bundle(h){return h.replace(/<link[^>]*href=["']?([^"'\s>]+\.css)["']?[^>]*>/gi,(m,f)=>LB.files[f]!==undefined?'<style>'+LB.files[f]+'</style>':m).replace(/<script[^>]*src=["']?([^"'\s>]+\.js)["']?[^>]*>\s*<\/script>/gi,(m,f)=>LB.files[f]!==undefined?'<script>'+LB.files[f].replace(/<\/script/gi,'<\\/script')+'<\/script>':m)}
+const HOOK='<script>const _l=(k,a)=>parent.postMessage({jv:k,m:a.map(x=>{try{return typeof x==="string"?x:JSON.stringify(x)}catch(e){return String(x)}}).join(" ")},"*");console.log=(...a)=>_l("log",a);console.error=(...a)=>_l("err",a);onerror=(m,s,l)=>{_l("err",[m+" (line "+l+")"])};addEventListener("unhandledrejection",e=>_l("err",["Unhandled promise rejection: "+(e.reason&&e.reason.message||e.reason)]));<\/script>';
+function addErr(msg){ERRS.push({file:LB.cur,msg});paintErr()}
+function paintErr(){const el=document.getElementById('jverr');if(!el)return;el.textContent=ERRS.length?'':'No errors.';ERRS.slice(-8).forEach(e=>{const d=document.createElement('p');d.className='mu n';d.style.margin='0';d.textContent=e.file+': '+e.msg;el.append(d)})}
+addEventListener('message',e=>{if(!window.JV_FR||e.source!==window.JV_FR.contentWindow||!e.data||!e.data.jv)return;const o=document.getElementById('jvout');if(o)o.textContent+=(e.data.jv==='err'?'ERROR: ':'')+e.data.m+'\n';if(e.data.jv==='err')addErr(e.data.m)});
+async function aiCall(sys,user){
+ if(!S.endpoint||(!S.model&&S.endpoint!=='/api/chat'))throw new Error('AI is not configured. Add Endpoint and Model in Settings');
+ const r=await fetch(S.endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(S.key?{Authorization:'Bearer '+S.key}:{})},body:JSON.stringify({model:S.model,messages:[{role:'system',content:sys},{role:'user',content:user}]})});
+ if(!r.ok)throw new Error('AI service error '+r.status);
+ const j=await r.json();const a=j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;
+ if(!a)throw new Error('Invalid AI response');return a}
+function pj(a){const m=a.match(/```(?:json)?\s*([\s\S]*?)```/);const s=(m?m[1]:a).trim();try{return JSON.parse(s)}catch(e){const i=s.indexOf('{'),k=s.lastIndexOf('}');try{return JSON.parse(s.slice(i,k+1))}catch(e2){return null}}}
+const SYS_EDIT='You are a careful coding assistant working on a small project. Reply with ONLY a JSON object: {"explanation":"one or two short sentences","changes":[{"file":"name.ext","action":"update" or "create","content":"the complete new content of that file"}]}. Change only the files that must change and keep all other code intact. Do not include unchanged files. No markdown outside the JSON.';
+async function aiProject(mode,req){
+ const F=LB.files,names=Object.keys(F),tot=names.reduce((a,n)=>a+F[n].length,0);let sel=names;
+ if(mode==='exp')sel=[LB.cur];
+ else if(names.length>3&&tot>6000){
+  const idx=names.map(n=>n+' ('+F[n].length+' chars): '+F[n].split('\n').slice(0,3).join(' | ').slice(0,120)).join('\n');
+  const j=pj(await aiCall('You pick which project files are relevant. Reply ONLY with JSON {"files":["name",...]} listing at most 4 existing file names.','Request: '+req+'\nCurrent file: '+LB.cur+'\nFiles:\n'+idx));
+  if(j&&Array.isArray(j.files)){const s=j.files.filter(n=>F[n]!==undefined);if(s.length)sel=s}
+  sel=sel.slice(0,4)}
+ const ctx2=sel.map(n=>'### '+n+'\n'+F[n].slice(0,12000)).join('\n\n');
+ if(mode==='exp')return {text:await aiCall('Explain this code clearly and briefly, in the same language as the request. Do not rewrite it.',ctx2+'\nRequest: '+req)};
+ const err=ERRS.length?'\nLatest errors:\n'+ERRS.slice(-3).map(e=>e.file+': '+e.msg).join('\n'):'';
+ const j=pj(await aiCall(SYS_EDIT,ctx2+err+'\nAll project files: '+names.join(', ')+'\nRequest: '+req));
+ if(!j||!Array.isArray(j.changes))throw new Error('Invalid AI response');
+ const ch=j.changes.filter(c=>c&&typeof c.file==='string'&&/^[\w.-]+\.\w+$/.test(c.file)&&typeof c.content==='string'&&(c.action==='update'||c.action==='create')).map(c=>({file:c.file,action:F[c.file]!==undefined?'update':'create',content:c.content}));
+ if(!ch.length)throw new Error('AI proposed no changes');
+ return {expl:j.explanation||'',changes:ch}}
+// ---- UI ----
+function dLab(p){
+ const bar=document.createElement('div');bar.className='pr';bar.style.gap='6px';
+ const body=document.createElement('div');body.style.cssText='display:flex;flex-direction:column;gap:12px';p.append(bar,body);
+ ['Files','Editor','Run','AI','Versions'].forEach(n=>{const b=document.createElement('button');b.textContent=n;b.style.cssText='flex:1;min-width:0;padding:0 4px';b.onclick=()=>{labTab=n;draw()};if(n===labTab)b.className='p';bar.append(b)});
+ ({Files:secFiles,Editor:secEditor,Run:secRun,AI:secAI,Versions:secVer})[labTab](body);
+ const j=window.JV_LABJOB;if(j){window.JV_LABJOB=null;setTimeout(j,60)}}
+const mk=(t,a)=>{const e=document.createElement(t);Object.assign(e,a||{});return e};
+const msg=(el,t,bad)=>{el.textContent=t;el.className='mu '+(bad?'n':'g')};
+const okName=n=>/^[\w.-]+\.\w+$/.test(n)&&LB.files[n]===undefined;
+function secFiles(body){
+ let c=card(body,'Files','Saved on this device. Tap a file to open it in the editor.');
+ const sq=mk('input',{placeholder:'Search files and code',type:'search'});c.append(sq);
+ const list=mk('div');list.style.cssText='display:flex;flex-direction:column;gap:6px';c.append(list);
+ const render=()=>{list.textContent='';const f=sq.value.trim().toLowerCase();
+  Object.keys(LB.files).forEach(n=>{let hit='';if(f&&!n.toLowerCase().includes(f)){const L=LB.files[n].split('\n'),i=L.findIndex(x=>x.toLowerCase().includes(f));if(i<0)return;hit='  L'+(i+1)+': '+L[i].trim().slice(0,50)}
+   const b=mk('button',{textContent:n+hit});b.style.cssText='width:100%;text-align:left;white-space:normal'+(n===LB.cur?';border-color:var(--ac);color:var(--ac)':'');
+   b.onclick=()=>{LB.cur=n;lbSave();labTab='Editor';draw()};list.append(b)})};
+ sq.oninput=render;render();
+ c=card(body,'Manage');const nm=mk('input',{placeholder:'File name, e.g. app.py'});c.append(nm);const st=mk('p');st.className='mu';
+ const r=mk('div');r.className='pr';
+ btn(r,'New',()=>{const n=nm.value.trim();if(!okName(n))return msg(st,'Use a new name with an extension.',1);LB.files[n]=TPL[EXT(n)]||'';LB.cur=n;lbSave();labTab='Editor';draw()});
+ btn(r,'Rename',()=>{const n=nm.value.trim();if(!okName(n))return msg(st,'Use a new name with an extension.',1);snap('before rename');LB.files[n]=LB.files[LB.cur];delete LB.files[LB.cur];LB.cur=n;lbSave();draw()});
+ let arm=false;const del=btn(r,'Delete',()=>{if(Object.keys(LB.files).length<2)return msg(st,'Keep at least one file.',1);if(!arm){arm=true;del.textContent='Tap again to delete '+LB.cur;return}snap('before delete');delete LB.files[LB.cur];LB.cur=Object.keys(LB.files)[0];lbSave();draw()},'d');
+ const fi=mk('input',{type:'file',multiple:true});fi.style.display='none';
+ fi.onchange=async()=>{let n=0;for(const f of fi.files){if(f.size>300000)continue;let name=f.name.replace(/[^\w.-]/g,'_'),k=2;while(LB.files[name]!==undefined)name=name.replace(/(\.\w+)?$/,'_'+(k++)+'$1');LB.files[name]=await f.text();LB.cur=name;n++}lbSave();msg(st,n+' file(s) opened.');draw()};
+ btn(r,'Open file',()=>fi.click());c.append(r,fi,st)}
+function mkEditor(){
+ const box=mk('div');box.style.cssText='position:relative;height:46vh;border:1px solid var(--ln);border-radius:12px;overflow:hidden;background:#07101a';
+ const F='13px/20px ui-monospace,Menlo,Consolas,"Courier New",monospace';
+ const pre=mk('pre');pre.style.cssText='position:absolute;left:0;top:0;margin:0;padding:10px;font:'+F+';white-space:pre;pointer-events:none;tab-size:2;color:var(--tx);min-width:100%';
+ const ta=mk('textarea');ta.spellcheck=false;ta.wrap='off';ta.setAttribute('autocapitalize','off');ta.setAttribute('autocorrect','off');
+ ta.style.cssText='position:absolute;inset:0;width:100%;height:100%;min-height:0;margin:0;padding:10px;font:'+F+';white-space:pre;overflow:auto;resize:none;border:0;border-radius:0;background:transparent;color:transparent;caret-color:var(--ac);tab-size:2';
+ box.append(pre,ta);let tm;ta.value=LB.files[LB.cur];
+ const paint=()=>{pre.innerHTML=hl(ta.value,EXT(LB.cur))+'\n'};paint();
+ ta.oninput=()=>{LB.files[LB.cur]=ta.value;clearTimeout(tm);tm=setTimeout(paint,100)};
+ ta.onscroll=()=>{pre.style.transform='translate('+(-ta.scrollLeft)+'px,'+(-ta.scrollTop)+'px)'};
+ return {box,ta,pre,paint}}
+function secEditor(body){
+ const c=card(body,LB.cur);const E=mkEditor(),ta=E.ta;c.append(E.box);const es=mk('p');es.className='mu';
+ const r=mk('div');r.className='pr';
+ btn(r,'Save',()=>{lbSave();msg(es,'Saved on this device.')},'p');
+ btn(r,'Undo',()=>{ta.focus();document.execCommand('undo')});btn(r,'Redo',()=>{ta.focus();document.execCommand('redo')});
+ btn(r,'Copy',async()=>{try{await navigator.clipboard.writeText(ta.value);msg(es,'Copied.')}catch(e){ta.select();try{document.execCommand('copy');msg(es,'Copied.')}catch(e2){msg(es,'Copy is blocked here. Select the text and copy it manually.',1)}}});
+ btn(r,'Preview',()=>{labTab='Run';window.JV_LABJOB=()=>ACT.run&&ACT.run();draw()});c.append(r);
+ const fi=mk('input',{placeholder:'Find'}),ri=mk('input',{placeholder:'Replace with'});c.append(fi,ri);
+ const r3=mk('div');r3.className='pr';
+ btn(r3,'Find next',()=>{const f=fi.value;if(!f)return;let i=ta.value.indexOf(f,ta.selectionEnd);if(i<0)i=ta.value.indexOf(f);if(i<0)return msg(es,'Not found.',1);ta.focus();ta.setSelectionRange(i,i+f.length);msg(es,'Found.')});
+ btn(r3,'Replace all',()=>{const f=fi.value;if(!f||!ta.value.includes(f))return msg(es,'Not found.',1);snap('before replace');const n=ta.value.split(f).length-1;ta.value=ta.value.split(f).join(ri.value);LB.files[LB.cur]=ta.value;E.paint();msg(es,n+' replaced. A version was saved first.')});
+ c.append(r3,es)}
+function secRun(body){
+ let c=card(body,'Run / Preview',LB.cur+': HTML and JavaScript run in a sandbox and JSON is validated. Python, Kotlin, Java, TypeScript and CSS cannot run in the browser, so nothing is executed for them.');
+ const out=mk('pre');out.id='jvout';out.style.cssText='margin:0;white-space:pre-wrap;font-size:12px;max-height:25vh;overflow:auto';
+ const fr=mk('iframe');fr.setAttribute('sandbox','allow-scripts');fr.style.cssText='width:100%;height:42vh;border:1px solid var(--ln);border-radius:12px;background:#fff;display:none';window.JV_FR=fr;
+ const run=()=>{lbSave();out.textContent='';ERRS=ERRS.filter(e=>e.file!==LB.cur);const s=LB.files[LB.cur],x=EXT(LB.cur);
+  if(x==='html'||x==='htm'){fr.srcdoc=HOOK+bundle(s);fr.style.display='block';out.textContent='Preview running.\n'}
+  else if(x==='js'){fr.srcdoc='<!doctype html><body>'+HOOK+'<script>'+s.replace(/<\/script/gi,'<\\/script')+'<\/script>';fr.style.display='none';out.textContent='Ran. Console output:\n'}
+  else if(x==='json'){try{JSON.parse(s);out.textContent='Valid JSON.'}catch(e){addErr('JSON error: '+e.message)}}
+  else out.textContent='.'+x+' files cannot run in the browser. Nothing was executed.';paintErr()};
+ ACT.run=run;btn(c,'Run now',run,'p');c.append(out,fr);
+ const ec=card(body,'Error panel');ec.append(mk('div',{id:'jverr'}));const r=mk('div');r.className='pr';
+ btn(r,'Fix with AI',()=>{labTab='AI';window.JV_LABJOB=()=>ACT.ai('edit','Fix the latest errors.');draw()},'p');btn(r,'Clear',()=>{ERRS=[];paintErr()});ec.append(r);paintErr()}
+function secVer(body){
+ const c=card(body,'Versions','A full project version is saved before every AI change, rename, delete and replace-all.');
+ const out=mk('pre');out.style.cssText='margin:0;white-space:pre-wrap;font-size:12px;max-height:25vh;overflow:auto';
+ const r=mk('div');r.className='pr';btn(r,'Save version',()=>{snap('manual');draw()},'p');
+ btn(r,'Undo last change',()=>{const v=VS.pop();if(!v)return;LB.files=JSON.parse(JSON.stringify(v.files));if(LB.files[LB.cur]===undefined)LB.cur=Object.keys(LB.files)[0];vsSave();lbSave();draw()},'d');c.append(r);
+ VS.slice().reverse().slice(0,8).forEach(v=>{const d=mk('div');d.className='pr';d.append(mk('b',{textContent:new Date(v.t).toLocaleTimeString()+' · '+v.label}));d.lastChild.style.fontWeight=400;
+  btn(d,'Compare',()=>{const names=new Set([...Object.keys(v.files),...Object.keys(LB.files)]);const rows=[];names.forEach(n=>{const a=v.files[n],b2=LB.files[n];if(a===undefined)rows.push(n+': added since');else if(b2===undefined)rows.push(n+': deleted since');else if(a!==b2){const x=dl(a,b2);rows.push(n+': +'+x.add+' / −'+x.del+' lines since')}});out.textContent=rows.length?rows.join('\n'):'Identical to the current project.'});
+  btn(d,'Restore',()=>{snap('before restore');LB.files=JSON.parse(JSON.stringify(v.files));if(LB.files[LB.cur]===undefined)LB.cur=Object.keys(LB.files)[0];lbSave();draw()},'d');c.append(d)});
+ c.append(out)}
+function secAI(body){
+ const c=card(body,'AI coding assistant','Needs an AI endpoint in Settings (use /api/chat with server.py to keep the key off the phone). It reads the relevant files, then shows PROPOSED CHANGES. Nothing changes until you tap APPLY.');
+ if(LMSG){c.append(mk('p',{className:'mu g',textContent:LMSG}));LMSG=''}
+ const pi=mk('textarea',{placeholder:'What should it do? e.g. make a calculator, make this page mobile responsive'});pi.style.cssText='min-height:80px;padding:10px';c.append(pi);
+ const ao=mk('pre');ao.style.cssText='margin:0;white-space:pre-wrap;font-size:12px;max-height:35vh;overflow:auto';const ap=mk('div');ap.style.cssText='display:flex;flex-direction:column;gap:8px';
+ const run=async(mode,req,speak)=>{if(!req)req=pi.value.trim();if(!req&&mode==='edit'){ao.textContent='Describe what the AI should do.';return}pi.value=req;ap.textContent='';ao.textContent='Thinking…';setS('thinking');
+  try{const r=await aiProject(mode,req);setS('idle');if(r.text){ao.textContent=r.text;if(speak)say(r.text.slice(0,400))}else{ao.textContent='';showProposal(ap,r,req)}}
+  catch(e){setS('error');ao.textContent=(e.message||'AI request failed')+'. Check Settings (endpoint, model), or your network may block it.'}};
+ ACT.ai=run;
+ const r=mk('div');r.className='pr';btn(r,'Do it',()=>run('edit'),'p');btn(r,'Explain',()=>run('exp',pi.value.trim()||'Explain this code'));
+ btn(r,'Fix error',()=>run('edit','Fix the latest errors. '+pi.value));btn(r,'Improve',()=>run('edit','Improve readability and robustness without changing behaviour. '+pi.value));
+ btn(r,'Make responsive',()=>run('edit','Make this page mobile responsive. '+pi.value));c.append(r,ao,ap)}
+function showProposal(ap,res,req){
+ ap.append(mk('b',{textContent:'PROPOSED CHANGES'}));if(res.expl)ap.append(mk('p',{className:'mu',textContent:res.expl}));let risky=false;
+ res.changes.forEach(ch=>{const old=LB.files[ch.file]||'',d=dl(old,ch.content),shrink=ch.action==='update'&&old.length>200&&ch.content.length<old.length*.5;if(shrink)risky=true;
+  const k=card(ap,ch.file+' · '+ch.action,'+'+d.add+' / −'+d.del+' lines (approximate)'+(shrink?'  ⚠ replaces most of this file':''));
+  k.append(mk('pre',{textContent:d.sample.join('\n')||'(no line-level additions)'}));k.lastChild.style.cssText='margin:0;white-space:pre-wrap;font-size:12px;max-height:20vh;overflow:auto'});
+ ap.append(mk('p',{className:'mu '+(risky?'n':''),textContent:risky?'This change will replace existing code. A full project version is saved first. Apply?':'Only the files listed above change. A full project version is saved first. Apply?'}));
+ const r=mk('div');r.className='pr';
+ btn(r,'APPLY',()=>{snap('before AI change: '+req.slice(0,28));res.changes.forEach(ch=>{LB.files[ch.file]=ch.content});if(LB.files[LB.cur]===undefined)LB.cur=res.changes[0].file;lbSave();LMSG='Applied '+res.changes.length+' file(s). Use Versions > Undo last change to go back.';draw()},'p');
+ btn(r,'CANCEL',()=>{ap.textContent=''},'d');ap.append(r)}
+function dInst(p){
+ let c=card(p,'Install web app','Works when the project is hosted over HTTPS (Chrome menu, then Install app).');
+ if(window.JV_INSTALL)btn(c,'INSTALL WEB APP',()=>window.JV_INSTALL.prompt(),'p');
+ else{const m=document.createElement('p');m.className='mu n';m.textContent='Install prompt is not available in this page.';c.append(m)}
+ card(p,'Download project','jarvis-project.zip is delivered in the chat as a file, not from this page.');
+ c=card(p,'Download APK');const a=document.createElement('b');a.className='n';a.textContent='APK not generated yet.';c.append(a)}
+</script>
+<script>"use strict";
+// Phase 2: notes (voice + UI), permission help, Live Baat safeguards.
+Object.assign(R,{
+ brAsk:{en:'Janab, shall I open the browser? (yes / no)',hi:'Janab, क्या browser खोलूँ? (हाँ / नहीं)',ur:'Janab، کیا براؤزر کھولوں؟ (ہاں / نہیں)',hg:'Janab, kya browser kholoon? (haan / nahi)'},
+ nfound:{en:'Found {n} note(s):',hi:'{n} note मिले:',ur:'{n} نوٹ ملے:',hg:'{n} note mile:'},
+ nnf:{en:'No matching notes.',hi:'कोई matching note नहीं मिला।',ur:'کوئی مماثل نوٹ نہیں ملا۔',hg:'Koi matching note nahi mila.'},
+ lerr:{en:'Speech recognition stopped ({e}). Live Baat ended.',hi:'Speech recognition रुक गया ({e})। Live Baat खत्म।',ur:'اسپیچ ریکگنیشن رک گیا ({e})۔ لائیو بات ختم۔',hg:'Speech recognition ruk gaya ({e}). Live Baat khatam.'},
+ lbg:{en:'Live Baat ended: the browser stops the microphone when the page goes to the background.',hi:'Live Baat खत्म: page background में जाने पर browser microphone बंद कर देता है।',ur:'لائیو بات ختم: پیج بیک گراؤنڈ میں جانے پر براؤزر مائیک بند کر دیتا ہے۔',hg:'Live Baat khatam: page background mein jaane par browser microphone band kar deta hai.'}});
+async function notesVoice(t){
+ if(!/note|नोट|نوٹ/.test(t))return false;
+ if(/likho|likh|लिखो|लिख|write|add|لکھو|لکھ|bana|बना|delete|हटा|मिटा|ڈیلیٹ|حذف/.test(t))return false;
+ if(/padh|पढ़|पढ|read|سنا|پڑھ/.test(t)){if(!notes.length)say(T('nnone'));else say(notes.map((n,i)=>(i+1)+'. '+n.t).join('. '));return true}
+ if(/search|find|dhoondh|ढूंढ|खोज|تلاش/.test(t)){
+  const q=t.replace(/^.*?(search|find|dhoondh\w*|ढूंढो?|खोजो?|تلاش)\s*/,'').replace(/notes?|नोट्स?|नोट|نوٹس?|نوٹ/g,'').replace(/\b(in|for|my)\b/g,'').trim();
+  const r=notes.filter(n=>n.t.toLowerCase().includes(q));
+  say(r.length?T('nfound',{n:r.length})+'\n'+r.map(n=>'• '+n.t).join('\n'):T('nnf'));return true}
+ if(/open|khol|खोल|کھول|dikha|दिखा|show|dekh|देख/.test(t)){openSheet('Notes');say(T('ok'));return true}
+ return false}
+function dNotes(p){
+ const c=card(p,'Notes','Saved on this device and kept after you close the app.');
+ const q=document.createElement('input');q.placeholder='Search notes';q.type='search';
+ const ni=document.createElement('input');ni.placeholder='New note';
+ const list=document.createElement('div');list.style.cssText='display:flex;flex-direction:column;gap:8px';
+ let editing=-1;
+ const render=()=>{list.textContent='';const f=q.value.trim().toLowerCase();let shown=0;
+  notes.forEach((n,i)=>{if(f&&!n.t.toLowerCase().includes(f))return;shown++;
+   const d=document.createElement('div');d.className='card';
+   if(i===editing){const ta=document.createElement('textarea');ta.value=n.t;ta.style.cssText='min-height:80px;padding:10px';d.append(ta);
+    const r=document.createElement('div');r.className='pr';
+    btn(r,'Save',()=>{if(ta.value.trim()){n.t=ta.value.trim();n.d=Date.now();saveN()}editing=-1;render()},'p');btn(r,'Cancel',()=>{editing=-1;render()});d.append(r)}
+   else{const b=document.createElement('p');b.style.cssText='margin:0;white-space:pre-wrap';b.textContent=n.t;d.append(b);
+    const r=document.createElement('div');r.className='pr';
+    btn(r,'Read',()=>say(n.t));btn(r,'Edit',()=>{editing=i;render()});
+    let arm=false;const del=btn(r,'Delete',()=>{if(!arm){arm=true;del.textContent='Tap again';return}notes.splice(i,1);saveN();render()},'d');d.append(r)}
+   list.append(d)});
+  if(!shown){const m=document.createElement('p');m.className='mu';m.textContent=notes.length?'No matching notes.':'No notes yet. Add one below or say "note likho …".';list.append(m)}};
+ q.oninput=render;c.append(q,list,ni);
+ btn(c,'Add note',()=>{if(ni.value.trim()){notes.push({t:ni.value.trim(),d:Date.now()});saveN();ni.value='';render()}},'p');render()}
+function permHelp(c,n){let m=c.querySelector('.ph');if(!m){m=document.createElement('p');m.className='mu ph';c.append(m)}
+ m.textContent='Browsers cannot open Android settings directly. In Chrome: tap the lock icon next to the address, then Permissions > '+n+'. Or Android Settings > Apps > Chrome > Permissions.'}
+let lbgFlag=false;
+document.addEventListener('visibilitychange',()=>{
+ if(document.hidden&&live){live=false;upLive();try{rec&&rec.stop()}catch(e){}try{speechSynthesis.cancel()}catch(e){}lbgFlag=true;setS('idle')}
+ else if(!document.hidden&&lbgFlag){lbgFlag=false;log('j',T('lbg'))}});
+
+function labJob(tab,fn){labTab=tab;window.JV_LABJOB=fn;openSheet('Lab')}
+async function labVoice(t,raw){
+ const lang=t.match(/(html|css|javascript|typescript|python|json|kotlin|java|\bjs\b|\bts\b|\bpy\b|\bkt\b)/);
+ if(lang&&/(nayi|नई|naya|नया|new|نئی|نیا)/.test(t)&&/(file|फाइल|فائل|banao|बनाओ|bana|create)/.test(t)){
+  const x={javascript:'js',typescript:'ts',python:'py',kotlin:'kt'}[lang[1].trim()]||lang[1].trim();let n='new.'+x,i=2;while(LB.files[n]!==undefined)n='new'+(i++)+'.'+x;
+  LB.files[n]=TPL[x]||'';LB.cur=n;lbSave();labTab='Editor';openSheet('Lab');say(T('ok')+' '+n);return true}
+ if(/preview|प्रीव्यू|प्रिव्यू|پریویو/.test(t)){const h=/\.html?$/.test(LB.cur)?LB.cur:Object.keys(LB.files).find(n=>/\.html?$/.test(n));if(h)LB.cur=h;labJob('Run',()=>ACT.run&&ACT.run());say(T('ok'));return true}
+ if(/explain|samjha|समझा|سمجھا/.test(t)&&/code|कोड|کوڈ|file|फाइल|فائل|program/.test(t)){labJob('AI',()=>ACT.ai('exp','Explain this code. '+raw,true));return true}
+ if(/fix|theek|ठीक|ٹھیک|sahi|सही/.test(t)&&/error|एरर|bug|गलती|ایرر/.test(t)){labJob('AI',()=>ACT.ai('edit','Fix the latest errors. '+raw));say(T('ok'));return true}
+ if(/banao|बनाओ|बना दो|bana do|create|build|make|add|jodo|जोड़|bada|बड़ा|responsive|badlo|बदलो/.test(t)&&/calculator|game|page|app|website|button|responsive|feature|form|layout|कैलकुलेटर|गेम|बटन|पेज|फीचर/.test(t)&&!/note|नोट|timer|टाइमर|alarm/.test(t)){
+  labJob('AI',()=>ACT.ai('edit',raw));say(T('ok'));return true}
+ return false}
+</script>
+<script>"use strict";
+// Native Android layer (Prompt 4). In a normal browser NativeBridge.available is false and NOTHING here activates.
+(function(){
+const NB=NativeBridge;if(!NB.available)return;
+const J=(m,...a)=>{try{return NB.call(m,...a)}catch(e){return null}};
+const stat=()=>{try{return JSON.parse(J('status')||'{}')}catch(e){return {}}};
+const od=draw;draw=function(){od();if(cur!=='Security'&&cur!=='Tools')return;
+ const p=$('#pane'),s=stat(),c=card(p,'Native Android','Screen Vision: <b>'+(s.screenVision||'OFF')+'</b> | Accessibility: <b>'+(s.accessibility?'ON':'OFF')+'</b> | Overlay permission: <b>'+(s.overlayPermission?'granted':'not granted')+'</b> | Orb: <b>'+(s.orb?'ON':'OFF')+'</b> | Wake listening: <b>'+(s.wake?'ON':'OFF')+'</b>');
+ const b=(t,f,k)=>{const x=document.createElement('button');x.textContent=t;if(k)x.className=k;x.onclick=()=>{f();setTimeout(draw,700)};c.append(x)};
+ b('Start Screen Vision',()=>J('startScreenVision'),'p');b('Stop Screen Vision',()=>J('stopScreenVision'),'d');
+ b('Open Accessibility settings',()=>J('openAccessibilitySettings'));
+ b('Show floating orb',()=>J('showOrb'));b('Hide orb',()=>J('hideOrb'));
+ b('Wake listening ON',()=>J('startWakeService'));b('Wake listening OFF',()=>J('stopWakeService'))};
+addEventListener('jarvis-native',()=>{if($('#sheet').classList.contains('o'))draw()});
+// Visible always-on indicator while Screen Vision is ACTIVE
+const ind=document.createElement('div');ind.style.cssText='position:fixed;top:4px;right:4px;z-index:9;display:none;background:#ff6b4a;color:#050a10;font:700 11px system-ui;padding:3px 8px;border-radius:99px';ind.textContent='SCREEN VISION ACTIVE';document.body.append(ind);
+setInterval(()=>{if(document.hidden)return;ind.style.display=stat().screenVision==='ACTIVE'?'block':'none'},3000);
+const oh=handle;handle=async function(raw){const t=(raw||'').toLowerCase();
+ const scr=/screen|\u0938\u094d\u0915\u094d\u0930\u0940\u0928/.test(t);
+ if(scr&&/stop|band|\u092c\u0902\u0926|off/.test(t)){log('u',raw);J('stopScreenVision');return say('Screen Vision stopped.')}
+ if(scr&&/dekh|look|see|\u0926\u0947\u0916/.test(t)&&!/kya|what|\u0915\u094d\u092f\u093e/.test(t)){log('u',raw);J('startScreenVision');return say('Android will now ask for your permission to capture the screen.')}
+ if(/screen.*(kya|what)|yahan.*(likha|written)|what is written|kya likha/.test(t)){log('u',raw);
+  const r=J('readScreenText');if(!r||r.startsWith('ERROR')){return say('Accessibility is off. Enable it in Android Settings to let me read the screen.')}
+  const a=JSON.parse(r).map(x=>x.text).filter(Boolean).slice(0,40);return say(a.length?'On screen: '+a.join(', '):'I could not find readable text on this screen.')}
+ if(/\bback\b|\u092a\u0940\u091b\u0947 \u091c\u093e\u0913/.test(t)&&/screen|jarvis/.test(t)){log('u',raw);return say(J('a11yBack')?'Done.':'Accessibility is off.')}
+ return oh(raw)};
+})();
+</script>
+<script>"use strict";
+// FINAL POLISH: smart router, memory, confirmations, Test Mode, lite mode, offline/error recovery, icons.
+(function(){
+const NB=NativeBridge,J=(m,...a)=>{try{return NB.call(m,...a)}catch(e){return null}};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+// ---------- native wiring (only when running inside the Android app) ----------
+if(NB.available){
+ const ot=torch;torch=async function(on){if(NB.has('setTorch'))return !!J('setTorch',on);return ot(on)};
+ const ob=bat;bat=async function(){if(NB.has('getBattery')){const p=J('getBattery');if(typeof p==='number'&&p>=0)return say(T('bat',{p,c:''}))}return ob()};
+}
+// ---------- offline-aware AI ----------
+const oa=askAI;askAI=async function(t){if(!navigator.onLine){setS('error');return say('You are offline, Janab. AI answers need internet. Battery, torch, timer and notes still work.')}return oa(t)};
+// ---------- confirmation: standard wording + WAITING status ----------
+const osc=showConfirm;showConfirm=function(fn){osc(fn);setS('waiting');const d=document.querySelector('.cf:last-of-type');if(d){const b=d.querySelectorAll('button');if(b[0])b[0].textContent='HAAN / ALLOW';if(b[1])b[1].textContent='NAHI / DENY'}};
+const ASK='Janab, kya main ye task execute karoon?';
+// ---------- site router + conversation memory ----------
+const SITES={
+ youtube:{n:'YouTube',u:'https://www.youtube.com',s:'https://www.youtube.com/results?search_query=',re:/you ?tube|यूट्यूब|یوٹیوب|یو ٹیوب/},
+ google:{n:'Google',u:'https://www.google.com',s:'https://www.google.com/search?q=',re:/google|गूगल|गुगल|گوگل/},
+ gmail:{n:'Gmail',u:'https://mail.google.com',s:'https://mail.google.com/mail/u/0/#search/',re:/gmail|जीमेल|جی میل/},
+ maps:{n:'Google Maps',u:'https://www.google.com/maps',s:'https://www.google.com/maps/search/',re:/\bmaps?\b|मैप|نقشہ/},
+ wikipedia:{n:'Wikipedia',u:'https://www.wikipedia.org',s:'https://en.wikipedia.org/w/index.php?search=',re:/wikipedia|विकिपीडिया|وکی پیڈیا/},
+ github:{n:'GitHub',u:'https://github.com',s:'https://github.com/search?q=',re:/github|गिटहब|گٹ ہب/}};
+const OPEN=/\b(open|launch|start|take me to|go to|goto|kholo|khol do|khol|chalao|chala do|chalu|le chalo|le jao)\b|खोल|चला|ले चलो|کھول|چلا|لے چلو/;
+const SRCH=/(?:^|\s)(search for|search|find|look up|dhundo|dhoondo|dhundh|talash karo|talash|सर्च|खोजो|ढूंढो|ढूँढो|سرچ|تلاش)\s+(.*)$/;
+const siteOf=t=>{for(const k in SITES)if(SITES[k].re.test(t))return k;return null};
+const freshSite=()=>ctx.site&&Date.now()-ctx.site.t<6e5?ctx.site.k:null;
+const mem=[];
+function openURL(url,name){
+ if(NB.available&&NB.has('openUrl')){return J('openUrl',url)?say(name+' is opening.'):(setS('error'),say('Android could not open '+name+'. No app or browser accepted the link.'))}
+ const w=window.open(url,'_blank');
+ if(w){return say(name+' is opening.')}
+ setS('error');const d=log('j','The browser blocked the pop-up, Janab. Tap below to open '+name+'.');
+ const b=document.createElement('button');b.className='p';b.textContent='Open '+name;b.onclick=()=>window.open(url,'_blank');d.append(document.createElement('br'),b)}
+function external(name,url,k,say1){
+ if(!navigator.onLine){setS('error');return say('No internet connection, so I cannot open '+name+'. Connect to Wi-Fi or mobile data and try again.')}
+ ctx.site={k,t:Date.now()};
+ const go=()=>{setS('executing');openURL(url,name)};
+ ctx.pending=go;say(ASK+'\n'+(say1||'Open '+name));showConfirm(go)}
+const oh2=handle;
+handle=async function(raw){
+ const text=(raw||'').trim();if(!text)return oh2(raw);
+ const t=text.toLowerCase().replace(/^(hey |ok |okay )?(jarvis|जार्विस|جارویس)[,\s]*/i,'');
+ if(ctx.pending||(ctx.await&&ctx.await!=='search'))return oh2(raw);   // core handles yes/no + follow-ups
+ const begin=()=>{log('u',text);detect(text);setS('thinking');mem.push({t:Date.now(),u:text});if(mem.length>20)mem.shift()};
+ if(/^(forget|clear memory|bhool jao|bhool ja|भूल जाओ|بھول جاؤ)/.test(t)){begin();ctx.site=null;hist.length=0;mem.length=0;ctx.last=null;return say('Memory cleared.')}
+ if(/\bshow (me )?my screen\b|screen (dikhao|dikha do)|meri screen (dikhao|dekho)|मेरी स्क्रीन (दिखाओ|देखो)/.test(t))return oh2('screen dekho');
+ if(NB.available&&NB.has('openDialer')&&/\bdial(er)?\b|डायल|ڈائل/.test(t)){begin();const go=()=>{setS('executing');J('openDialer','');say('Dialer is open. I will not place any call.')};ctx.pending=go;say(ASK+'\nOpen the dialer');showConfirm(go);return}
+ // search (explicit, or the answer to "what should I search for?")
+ let q=null,m=!/note|नोट|نوٹ/.test(t)&&t.match(SRCH);
+ if(ctx.await==='search'){ctx.await=null;q=t}else if(m)q=m[2];
+ if(q!==null){
+  let k=siteOf(t)||freshSite()||'google';
+  q=q.replace(/\s*\b(on|in|par|pe|pr|mein|me)\s+(you ?tube|google|gmail|maps?|wikipedia|github)\b.*$/,'').replace(/^for\s+/,'').replace(/\s+(karo|kar do|please|plz)$/,'').trim();
+  if(!q){begin();ctx.await='search';ctx.site={k,t:Date.now()};return say('What should I search for, Janab?')}
+  begin();const s=SITES[k];return external(s.n,s.s+encodeURIComponent(q),k,'Search '+s.n+' for "'+q+'"')}
+ const k=siteOf(t);
+ if(k&&OPEN.test(t)){begin();const s=SITES[k];return external(s.n,s.u,k)}
+ return oh2(raw)};
+// ---------- Settings: lite mode + memory ----------
+function setLite(v){S.lite=v;document.body.classList.toggle('lite',v);const w=$('#wave'),n=v?8:22;
+ while(w.children.length>n)w.lastChild.remove();while(w.children.length<n){const e=document.createElement('i');e.style.animationDelay=(w.children.length%7)*70+'ms';w.append(e)}save()}
+const dm=navigator.deviceMemory,hc=navigator.hardwareConcurrency;
+if(S.lite===undefined)S.lite=!!((dm&&dm<=2)||(hc&&hc<=4&&dm&&dm<=3));
+setLite(!!S.lite);
+const ods=dSet;dSet=function(p){ods(p);
+ let c=card(p,'Performance','Lite mode turns off animations and trims the waveform. Recommended for phones with 2 GB RAM or less.');
+ const l=document.createElement('label'),cb=document.createElement('input');cb.type='checkbox';cb.checked=!!S.lite;cb.style.cssText='width:24px;min-height:24px;margin-right:8px;vertical-align:middle';cb.onchange=()=>setLite(cb.checked);l.append(cb,'Lite mode');c.append(l);
+ c=card(p,'Conversation memory','Kept only in this session (not saved). Lets follow-ups like "search minecraft" refer to the last site you opened.');
+ const b=document.createElement('button');b.textContent='Clear memory';b.onclick=()=>{ctx.site=null;hist.length=0;mem.length=0;b.textContent='Cleared'};c.append(b);
+ c=card(p,'Security','API keys are never saved in this app or its source. For AI use the secure proxy (server/proxy.js, key in an environment variable) and set the endpoint to /api/chat. A key typed here lives in memory only and is forgotten on reload.')};
+// ---------- Test Mode ----------
+const NO=['NATIVE ONLY','Open this app inside the Android APK'];
+const nst=()=>{try{return JSON.parse(J('status')||'{}')}catch(e){return {}}};
+const WEB=[
+ ['Microphone',async()=>{if(!navigator.mediaDevices)return['FAIL','Needs HTTPS or the app'];try{(await navigator.mediaDevices.getUserMedia({audio:true})).getTracks().forEach(x=>x.stop());return['PASS','Opened and released']}catch(e){return e.name==='NotAllowedError'?['PERMISSION REQUIRED','Allow the microphone for this site']:['FAIL',e.name]}}],
+ ['Speech recognition (API present)',async()=>SR?['PASS','API exists. Real recognition also needs mic + online speech service']:['FAIL','Not supported in this browser']],
+ ['Text-to-speech',()=>new Promise(r=>{if(!('speechSynthesis'in window))return r(['FAIL','speechSynthesis missing']);let d=0;const f=x=>{if(!d){d=1;r(x)}};const u=new SpeechSynthesisUtterance('Test');u.volume=.3;u.onstart=()=>f(['PASS','Speech started']);u.onerror=e=>f(['FAIL',e.error||'error']);setTimeout(()=>f(['FAIL','No speech in 4 s (no voice installed?)']),4000);speechSynthesis.cancel();speechSynthesis.speak(u)})],
+ ['AI response',async()=>{if(!S.endpoint||(!S.model&&S.endpoint!=='/api/chat'))return['PERMISSION REQUIRED','No endpoint/API configured (Settings)'];if(!navigator.onLine)return['FAIL','Offline'];try{const r=await fetch(S.endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(S.key?{Authorization:'Bearer '+S.key}:{})},body:JSON.stringify({model:S.model,messages:[{role:'user',content:'Reply with: ok'}]})});return r.ok?['PASS','HTTP '+r.status]:[r.status===401||r.status===403?'PERMISSION REQUIRED':'FAIL','HTTP '+r.status]}catch(e){return['FAIL','Network/CORS error']}}],
+ ['Battery',async()=>{if(NB.available&&NB.has('getBattery'))return['PASS',J('getBattery')+'% (native)'];if(!navigator.getBattery)return['FAIL','Battery API not in this browser (Chrome Android has it; iOS/Firefox do not)'];const b=await navigator.getBattery();return['PASS',Math.round(b.level*100)+'%']}],
+ ['Flashlight',async()=>{if(await perm('camera')==='denied')return['PERMISSION REQUIRED','Camera is blocked for this site'];const ok=await torch(true);if(ok){await sleep(500);await torch(false);return['PASS','Torch switched on and off']}return['FAIL','Torch not supported by this browser/camera. The Android app uses the real flashlight']}],
+ ['Camera',async()=>{if(!navigator.mediaDevices)return['FAIL','Needs HTTPS or the app'];try{(await navigator.mediaDevices.getUserMedia({video:true})).getTracks().forEach(x=>x.stop());return['PASS','Opened and released']}catch(e){return e.name==='NotAllowedError'?['PERMISSION REQUIRED','Allow the camera for this site']:['FAIL',e.name]}}],
+ ['Timer',async()=>{const was=tm;timerStart(1);const ok=tm===1&&tEnd>Date.now();clearInterval(tInt);tm=null;tPaused=null;return ok?['PASS','Started and cancelled']:['FAIL','Timer did not start']}],
+ ['Notes',async()=>{try{localStorage.setItem('jv.t','1');const ok=localStorage.getItem('jv.t')==='1';localStorage.removeItem('jv.t');return ok?['PASS','Storage read/write OK']:['FAIL','Storage returned wrong value']}catch(e){return['FAIL','Storage blocked']}}],
+ ['Dialer',async()=>['MANUAL','Tap Dialer on Home: it asks first and never calls by itself']],
+ ['Browser',async()=>['MANUAL','Say "open google": it asks first; pop-up blockers may need one tap']],
+ ['Coding Lab',async()=>{try{dLab(document.createElement('div'));return['PASS','Lab UI builds without error']}catch(e){return['FAIL',e.message]}}],
+ ['Offline shell',async()=>{if(!('serviceWorker'in navigator))return['FAIL','No service worker support'];const k=await caches.keys().catch(()=>[]);return navigator.serviceWorker.controller&&k.length?['PASS','Cached: '+k.join(',')]:['FAIL','Not cached yet (needs HTTPS and one reload)']}]];
+const NAT=[
+ ['Screen Vision',async()=>{if(!NB.available)return NO;const s=nst().screenVision;return s==='ACTIVE'?['PASS','ACTIVE']:['PERMISSION REQUIRED','Status '+s+'. Say "show my screen" and accept the Android dialog']}],
+ ['Accessibility',async()=>{if(!NB.available)return NO;return nst().accessibility?['PASS','Service connected']:['PERMISSION REQUIRED','Enable it in Android Settings > Accessibility']}],
+ ['Floating Assistant',async()=>{if(!NB.available)return NO;const s=nst();return s.orb?['PASS','Orb visible']:s.overlayPermission?['MANUAL','Permission granted: tap Show floating orb']:['PERMISSION REQUIRED','Allow Display over other apps']}],
+ ['Native flashlight',async()=>{if(!NB.has('setTorch'))return NO;const a=J('setTorch',true);await sleep(500);J('setTorch',false);return a?['PASS','On/off OK']:['FAIL','No flash or camera busy']}]];
+const cls=s=>s==='PASS'?'PASS':s==='FAIL'?'FAIL':s==='PERMISSION REQUIRED'?'PERM':'';
+window.dTest=function(p){
+ const top=card(p,'Test Mode','Real checks, started by you. WEB / PWA tests run in any browser; NATIVE ANDROID tests need the APK. Nothing here is simulated.');
+ const all=document.createElement('button');all.className='p';all.textContent='Run all tests';top.append(all);const fns=[];
+ for(const [g,list] of [['WEB / PWA',WEB],['NATIVE ANDROID',NAT]]){const c=card(p,g);
+  for(const [n,f] of list){const r=document.createElement('div');r.className='pr';const b=document.createElement('b');b.textContent=n;const pill=document.createElement('span');pill.className='rs';pill.textContent='-';const x=document.createElement('button');x.textContent='Run';x.style.minWidth='64px';const dt=document.createElement('p');dt.className='mu';dt.style.width='100%';
+   const run=async()=>{pill.textContent='RUNNING';pill.className='rs';let res;try{res=await f()}catch(e){res=['FAIL',String(e.message||e)]}pill.textContent=res[0];pill.className='rs '+cls(res[0]);dt.textContent=res[1]};
+   x.onclick=run;fns.push(run);r.append(b,pill,x);c.append(r,dt)}}
+ all.onclick=async()=>{all.disabled=true;for(const f of fns)await f();all.disabled=false;setS('idle')}};
+// ---------- icons (SVG, no emoji) ----------
+const IC={Screen:'<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',Security:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',Torch:'<path d="M13 2L5 14h6l-1 8 8-12h-6z"/>',Timers:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',Notes:'<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h7"/>',Camera:'<path d="M4 7h4l2-3h4l2 3h4v13H4z"/><circle cx="12" cy="13" r="3.5"/>',Battery:'<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M21 11v2M7 10v4"/>',Dialer:'<path d="M6 3l3 5-2 2c1 3 3 5 6 6l2-2 5 3-1 3c-9 1-17-7-16-16z"/>','Code Lab':'<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 5l-4 14"/>',Settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',Install:'<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>',Browser:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'};
+document.querySelectorAll('#tiles button').forEach(b=>{const n=b.querySelector('b'),s=b.querySelector('span');if(n&&s&&IC[n.textContent]){s.innerHTML='<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">'+IC[n.textContent]+'</svg>'}});
+// connectivity status for the user
+addEventListener('offline',()=>{log('j','You are offline. Local commands still work; AI needs internet.')});
+})();
+</script>
+</body></html>
